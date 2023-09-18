@@ -11,19 +11,19 @@ import (
 
 type optionsStruct struct {
 	// Target has HTTPS WinRM endpoint
-	HTTPS bool
+	HTTPS bool `compspore:"https"`
 
 	// Target is running in insecure mode
-	Insecure bool
+	Insecure bool `compspore:"insecure"`
 
 	// CA cert for the target
-	CACert []byte
+	CACert []byte `compspore:"cacert"`
 
 	// Client cert for the target
-	Cert []byte
+	Cert []byte `compspore:"cert"`
 
 	// Client key for the target
-	Key []byte
+	Key []byte `compspore:"key"`
 }
 
 func (o *optionsStruct) Unmarshal(options map[string]interface{}) {
