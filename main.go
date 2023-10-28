@@ -26,7 +26,7 @@ type optionsStruct struct {
 	Key []byte `compspore:"key"`
 }
 
-func (o *optionsStruct) Unmarshal(options map[string]interface{}) {
+func (o *optionsStruct) Unmarshal(options map[string]interface{}) error {
 	httpsInterface, ok := options["https"]
 	if ok {
 		https, ok := httpsInterface.(bool)
@@ -35,8 +35,6 @@ func (o *optionsStruct) Unmarshal(options map[string]interface{}) {
 		} else {
 			o.HTTPS = false
 		}
-	} else {
-		o.HTTPS = false
 	}
 
 	insecureInterface, ok := options["insecure"]
@@ -47,49 +45,46 @@ func (o *optionsStruct) Unmarshal(options map[string]interface{}) {
 		} else {
 			o.Insecure = false
 		}
-	} else {
-		o.Insecure = false
 	}
 
 	caCertInterface, ok := options["cacert"]
 	if ok {
-		caCert, ok := caCertInterface.([]byte)
+		caCert, ok := caCertInterface.(string)
 		if ok {
-			o.CACert = caCert
+			o.CACert = []byte(caCert)
 		} else {
-			o.CACert = nil
+			return fmt.Errorf("cacert must be a string, provided: %T", caCertInterface)
 		}
-	} else {
-		o.CACert = nil
 	}
 
 	certInterface, ok := options["cert"]
 	if ok {
-		cert, ok := certInterface.([]byte)
+		cert, ok := certInterface.(string)
 		if ok {
-			o.Cert = cert
+			o.Cert = []byte(cert)
 		} else {
-			o.Cert = nil
+			return fmt.Errorf("cert must be a string, provided: %T", certInterface)
 		}
-	} else {
-		o.Cert = nil
 	}
 
 	keyInterface, ok := options["key"]
 	if ok {
-		key, ok := keyInterface.([]byte)
+		key, ok := keyInterface.(string)
 		if ok {
-			o.Key = key
+			o.Key = []byte(key)
 		} else {
-			o.Key = nil
+			return fmt.Errorf("key must be a string, provided: %T", keyInterface)
 		}
-	} else {
-		o.Key = nil
 	}
+
+	return nil
 }
 func Run(ctx context.Context, target string, command string, expectedOutput string, username string, password string, options map[string]interface{}) (bool, string) {
 	optionsStruct := optionsStruct{}
-	optionsStruct.Unmarshal(options)
+	err := optionsStruct.Unmarshal(options)
+	if err != nil {
+		return false, fmt.Sprintf("failed to unmarshal options: %s", err)
+	}
 
 	var port int
 
