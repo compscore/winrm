@@ -102,7 +102,11 @@ func Run(ctx context.Context, target string, command string, expectedOutput stri
 
 		port = p
 	} else {
-		port = 5985
+		if optionsStruct.HTTPS {
+			port = 5986
+		} else {
+			port = 5985
+		}
 	}
 
 	endpoint := winrm.NewEndpoint(
